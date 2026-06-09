@@ -70,83 +70,86 @@ export function generatePairsData(): PairStat[] {
       signalQuality,
       rankingScore,
     };
-  }).sort((a, b) => b.rankingScore - a.rankingScore);
+  }).sort((a, b) => b.winRate - a.winRate);
 }
 
-export function generateActiveSignals(pairs: PairStat[]): TradeSignal[] {
+export function generateActiveSignals(pairs: PairStat[], timeframe: '1m'|'5m'|'15m' = '5m'): TradeSignal[] {
   const activeSignals: TradeSignal[] = [];
-  const topPairs = pairs.filter(p => !['C', 'NONE'].includes(p.signalQuality)).slice(0, 10);
+  const topPairs = pairs.filter(p => !['C', 'NONE'].includes(p.signalQuality)).sort((a, b) => b.winRate - a.winRate).slice(0, 2);
 
   topPairs.forEach((pair, index) => {
-    if (Math.random() > 0.4) {
-      const direction = pair.trend === 'UP' ? 'BUY CALL' : 'SELL PUT';
-      const score = randomBetween(70, 95);
+      const direction = pair.trend === 'DOWN' ? 'PUT' : 'CALL';
+      const score = randomBetween(85, 99);
       const isJpy = pair.symbol.includes('JPY');
       const pipMultiplier = isJpy ? 0.01 : 0.0001;
-      const entryPrice = pair.price;
-      const slOffset = randomBetween(10, 30, 1) * pipMultiplier * (direction === 'BUY CALL' ? -1 : 1);
-      const tpOffset = Math.abs(slOffset) * randomBetween(1.5, 3, 1) * (direction === 'BUY CALL' ? 1 : -1);
-
-      const entryTime = new Date();
-      entryTime.setMinutes(entryTime.getMinutes() - randomBetween(1, 15));
-      const expDurs: ('1m' | '5m' | '15m' | '30m' | '1H')[] = ['5m', '15m', '30m', '1H'];
-      const duration = expDurs[Math.floor(Math.random() * expDurs.length)];
-      const expiryMinutes = duration === '5m' ? 5 : duration === '15m' ? 15 : duration === '30m' ? 30 : 60;
-      const expiryTime = new Date(entryTime.getTime() + expiryMinutes * 60000);
+      
+      const now = Date.now();
+      const timeframeMs = (timeframe === '1m' ? 1 : timeframe === '5m' ? 5 : 15) * 60000;
+      
+      // Calculate next candle open time
+      const nextCandleTime = Math.ceil(now / timeframeMs) * timeframeMs;
+      
+      // Target entry is next candle open. Alert is 10s before.
+      const entryTimeMs = nextCandleTime;
+      const alertTimeMs = entryTimeMs - 10000;
+      const expiryTimeMs = entryTimeMs + timeframeMs;
+      
+      let status: 'PRE_ALERT' | 'ACTIVE' | 'WON' | 'LOST' | 'TIE' = 'PRE_ALERT';
+      if (now >= entryTimeMs) {
+         status = 'ACTIVE';
+      }
 
       activeSignals.push({
         id: `SIG-${index}-${Date.now()}`,
         pair: pair.symbol,
         direction,
-        entryPrice: randomBetween(pair.price - pipMultiplier*5, pair.price + pipMultiplier*5, isJpy ? 3 : 5),
-        stopLoss: entryPrice + slOffset,
-        takeProfit: entryPrice + tpOffset,
-        riskReward: `1:${(Math.abs(tpOffset) / Math.abs(slOffset)).toFixed(1)}`,
+        entryPrice: pair.price, // Target entry price (current price at alert)
         signalStrength: score,
         confidenceScore: score + randomBetween(-5, 5),
         qualityGrade: pair.signalQuality as 'A+' | 'A' | 'B+' | 'B' | 'C',
-        expectedDuration: duration,
-        entryTime: entryTime.toISOString(),
-        expiryTime: expiryTime.toISOString(),
-        status: 'ACTIVE',
+        timeframe,
+        alertTime: new Date(alertTimeMs).toISOString(),
+        entryTime: new Date(entryTimeMs).toISOString(),
+        expiryTime: new Date(expiryTimeMs).toISOString(),
+        status,
+        profitAmount: 85, // Default 85% payout
         factors: [
-          { name: 'Liquidity Sweep', score: randomBetween(10, 20) },
-          { name: 'Bullish FVG', score: randomBetween(10, 20) },
-          { name: 'HTF Alignment', score: randomBetween(15, 25) },
-          { name: 'Volume Confirmation', score: randomBetween(5, 15) }
+          { name: 'Binary Pattern', score: randomBetween(10, 20) },
+          { name: 'Momentum Shift', score: randomBetween(10, 20) },
+          { name: 'Volume Surge', score: randomBetween(15, 25) },
+          { name: 'RSI Divergence', score: randomBetween(5, 15) }
         ]
       });
-    }
   });
 
   return activeSignals;
 }
 
-export function generateBacktestAnalytics(pair: string): BacktestAnalytics {
+export function generateBacktestAnalytics(pair: string, timeframe: string = '5m'): BacktestAnalytics {
   const totalTrades = randomBetween(200, 1500);
-  const winRate = randomBetween(55, 85, 1);
+  const winRate = randomBetween(55, 75, 1);
+  const itmRate = winRate;
   const winningTrades = Math.floor((winRate / 100) * totalTrades);
-  const losingTrades = totalTrades - winningTrades;
+  const tieTrades = Math.floor(totalTrades * 0.05); // 5% ties
+  const losingTrades = totalTrades - winningTrades - tieTrades;
 
   return {
     pair,
+    timeframe,
     totalTrades,
     winningTrades,
     losingTrades,
+    tieTrades,
     winRate,
-    profitFactor: randomBetween(1.2, 3.5, 2),
-    averageWin: randomBetween(100, 300, 2),
-    averageLoss: randomBetween(-50, -150, 2),
+    itmRate,
+    averagePayout: 85, // 85% payout
     maxDrawdown: randomBetween(5, 30, 2),
     recoveryFactor: randomBetween(1.5, 5.0, 2),
     sharpeRatio: randomBetween(0.8, 2.5, 2),
-    expectancy: randomBetween(0.2, 2.5, 2),
     monthlyReturns: randomBetween(2, 15, 2),
     yearlyReturns: randomBetween(30, 250, 2),
     bestSession: ['London', 'New York', 'Tokyo'][Math.floor(Math.random() * 3)],
     worstSession: ['Sydney', 'Tokyo', 'London'][Math.floor(Math.random() * 3)],
-    bestStrategy: ['Liquidity Sweep', 'Momentum Breakout', 'Mean Reversion'][Math.floor(Math.random() * 3)],
-    worstStrategy: ['Trend Following', 'RSI Divergence', 'News Fade'][Math.floor(Math.random() * 3)],
   };
 }
 
@@ -164,33 +167,38 @@ export const MOCK_NEWS: NewsEvent[] = [
   { id: '4', time: new Date(Date.now() - 3600000).toISOString(), currency: 'JPY', event: 'Monetary Policy Statement', impact: 'HIGH' },
 ];
 
-export function generateSignalHistory(count = 50): TradeSignal[] {
+export function generateSignalHistory(count = 50, timeframe: '1m'|'5m'|'15m' = '5m'): TradeSignal[] {
     const history: TradeSignal[] = [];
     const pairs = [...MAJORS, ...MINORS];
     for (let i=0; i<count; i++) {
         const pair = pairs[Math.floor(Math.random() * pairs.length)];
         const isJpy = pair.includes('JPY');
         const price = isJpy ? randomBetween(130, 150, 3) : randomBetween(0.9, 1.5, 5);
-        const direction = Math.random() > 0.5 ? 'BUY CALL' : 'SELL PUT';
-        const won = Math.random() > 0.4; // 60% win rate
+        const direction = Math.random() > 0.5 ? 'CALL' : 'PUT';
+        const rand = Math.random();
+        const won = rand > 0.45; // 55% win rate
+        const tie = rand > 0.4 && rand <= 0.45; // 5% tie
+        const timeframeMs = (timeframe === '1m' ? 1 : timeframe === '5m' ? 5 : 15) * 60000;
+        
+        const entryTimeMs = Date.now() - randomBetween(1, 30) * 86400000;
+        const expiryTimeMs = entryTimeMs + timeframeMs;
+        const alertTimeMs = entryTimeMs - 10000;
         
         history.push({
             id: `HIST-${i}`,
             pair,
             direction,
             entryPrice: price,
-            stopLoss: price * (direction === 'BUY CALL' ? 0.99 : 1.01),
-            takeProfit: price * (direction === 'BUY CALL' ? 1.02 : 0.98),
-            riskReward: '1:2.0',
             signalStrength: randomBetween(70, 95),
             confidenceScore: randomBetween(70, 99),
             qualityGrade: ['A+', 'A', 'B+'][Math.floor(Math.random()*3)] as any,
-            expectedDuration: '15m',
-            entryTime: new Date(Date.now() - randomBetween(1, 30) * 86400000).toISOString(),
-            expiryTime: new Date(Date.now() - randomBetween(1, 30) * 86400000 + 4500000).toISOString(),
+            timeframe,
+            alertTime: new Date(alertTimeMs).toISOString(),
+            entryTime: new Date(entryTimeMs).toISOString(),
+            expiryTime: new Date(expiryTimeMs).toISOString(),
             factors: [],
-            status: won ? 'WON' : 'LOST',
-            pnl: won ? randomBetween(10, 100, 2) : randomBetween(-10, -50, 2)
+            status: won ? 'WON' : tie ? 'TIE' : 'LOST',
+            profitAmount: won ? 85 : tie ? 0 : -100 // Using 100 as base bet for PnL example
         });
     }
     return history.sort((a,b) => new Date(b.entryTime).getTime() - new Date(a.entryTime).getTime());

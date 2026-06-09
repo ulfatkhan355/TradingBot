@@ -2,7 +2,7 @@ import React from 'react';
 import { BacktestAnalytics } from '../types';
 import { 
     BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, 
-    LineChart, Line, CartesianGrid, AreaChart, Area
+    LineChart, Line, CartesianGrid, AreaChart, Area, Cell
 } from 'recharts';
 
 interface AnalyticsProps {
@@ -16,12 +16,6 @@ export function Analytics({ analytics }: AnalyticsProps) {
         equity: 10000 + (i * analytics.monthlyReturns * 100) + (Math.random() * 500 - 250)
     }));
 
-    const strategiesData = [
-        { name: analytics.bestStrategy, rate: analytics.winRate + 5 },
-        { name: 'Trend Align', rate: analytics.winRate - 2 },
-        { name: analytics.worstStrategy, rate: analytics.winRate - 12 }
-    ];
-
     const sessionData = [
         { name: 'London', pnl: 4500 },
         { name: 'New York', pnl: 3200 },
@@ -33,14 +27,19 @@ export function Analytics({ analytics }: AnalyticsProps) {
         <div className="h-full flex flex-col gap-6 overflow-y-auto custom-scrollbar pb-6">
             
             <div className="bg-[#1e222d] border border-gray-800 rounded-xl p-6">
-                <h2 className="text-xl font-bold text-gray-100 mb-6">Strategy Backtest: {analytics.pair}</h2>
+                <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-xl font-bold text-gray-100">Backtest: {analytics.pair}</h2>
+                    <span className="px-3 py-1 bg-[#131722] text-gray-300 rounded-lg text-sm font-mono border border-gray-700">
+                        {analytics.timeframe} Base Timeframe
+                    </span>
+                </div>
                 
                 <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
                     <StatBox label="Total Trades" value={analytics.totalTrades.toString()} />
-                    <StatBox label="Win Rate" value={`${analytics.winRate.toFixed(1)}%`} color="text-indigo-400" />
-                    <StatBox label="Profit Factor" value={analytics.profitFactor.toFixed(2)} color="text-emerald-400" />
+                    <StatBox label="ITM Rate" value={`${analytics.itmRate.toFixed(1)}%`} color="text-indigo-400" />
+                    <StatBox label="Win Rate" value={`${analytics.winRate.toFixed(1)}%`} color="text-emerald-400" />
+                    <StatBox label="Average Payout" value={`${analytics.averagePayout}%`} color="text-emerald-400" />
                     <StatBox label="Max Drawdown" value={`${analytics.maxDrawdown.toFixed(1)}%`} color="text-rose-400" />
-                    <StatBox label="Expectancy" value={`$${analytics.expectancy.toFixed(2)}`} />
                     <StatBox label="Sharpe Ratio" value={analytics.sharpeRatio.toFixed(2)} />
                 </div>
             </div>
@@ -66,24 +65,6 @@ export function Analytics({ analytics }: AnalyticsProps) {
                                 />
                                 <Area type="monotone" dataKey="equity" stroke="#6366f1" fillOpacity={1} fill="url(#colorEq)" />
                             </AreaChart>
-                        </ResponsiveContainer>
-                    </div>
-                </div>
-
-                {/* Strategy Performance */}
-                <div className="bg-[#1e222d] border border-gray-800 rounded-xl p-6 h-[350px] flex flex-col">
-                    <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500 mb-4">Win Rate by Strategy</h3>
-                    <div className="flex-1 min-h-0">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={strategiesData} layout="vertical" margin={{ left: 40 }}>
-                                <XAxis type="number" stroke="#4b5563" fontSize={10} domain={[0, 100]} />
-                                <YAxis dataKey="name" type="category" stroke="#9ca3af" fontSize={11} width={80} />
-                                <RechartsTooltip 
-                                    contentStyle={{ backgroundColor: '#131722', border: '1px solid #374151', borderRadius: '8px' }}
-                                    cursor={{fill: '#374151', opacity: 0.2}}
-                                />
-                                <Bar dataKey="rate" fill="#10b981" radius={[0, 4, 4, 0]} barSize={24} />
-                            </BarChart>
                         </ResponsiveContainer>
                     </div>
                 </div>
@@ -116,12 +97,16 @@ export function Analytics({ analytics }: AnalyticsProps) {
                     <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500 mb-6">Additional Metrics</h3>
                     <div className="space-y-4">
                         <div className="flex justify-between items-center border-b border-gray-800 pb-2">
-                            <span className="text-gray-400 text-sm">Average Win</span>
-                            <span className="text-emerald-400 font-mono">${analytics.averageWin.toFixed(2)}</span>
+                            <span className="text-gray-400 text-sm">Winning Trades</span>
+                            <span className="text-emerald-400 font-mono">{analytics.winningTrades}</span>
                         </div>
                         <div className="flex justify-between items-center border-b border-gray-800 pb-2">
-                            <span className="text-gray-400 text-sm">Average Loss</span>
-                            <span className="text-rose-400 font-mono">${analytics.averageLoss.toFixed(2)}</span>
+                            <span className="text-gray-400 text-sm">Losing Trades</span>
+                            <span className="text-rose-400 font-mono">{analytics.losingTrades}</span>
+                        </div>
+                        <div className="flex justify-between items-center border-b border-gray-800 pb-2">
+                            <span className="text-gray-400 text-sm">Tie Trades</span>
+                            <span className="text-gray-400 font-mono">{analytics.tieTrades}</span>
                         </div>
                         <div className="flex justify-between items-center border-b border-gray-800 pb-2">
                             <span className="text-gray-400 text-sm">Recovery Factor</span>
@@ -147,6 +132,3 @@ function StatBox({ label, value, color = "text-gray-200" }: { label: string, val
         </div>
     )
 }
-
-// Needed to color individual bars based on value
-import { Cell } from 'recharts';

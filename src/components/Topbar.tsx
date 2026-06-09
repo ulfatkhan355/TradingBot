@@ -33,12 +33,12 @@ export function Topbar() {
                 ))}
             </div>
 
-            <div className="flex-1 lg:hidden text-gray-400 text-sm font-mono">
-                {formatInTimeZone(now, 'UTC', 'HH:mm:ss')} UTC
+            <div className="flex items-center lg:hidden">
+                <span className="font-bold text-lg tracking-tight text-white mr-4">ForexPro</span>
             </div>
 
-            <div className="flex items-center space-x-4">
-                <div className="relative hidden sm:block">
+            <div className="flex items-center space-x-4 ml-auto">
+                <div className="relative hidden md:block">
                     <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
                     <input 
                         type="text" 

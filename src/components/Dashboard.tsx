@@ -12,7 +12,7 @@ interface DashboardProps {
 }
 
 export function Dashboard({ signals, pairs, sessions }: DashboardProps) {
-    const activeSignals = signals.filter(s => s.status === 'ACTIVE');
+    const liveSignals = signals.filter(s => s.status === 'PRE_ALERT' || s.status === 'ACTIVE');
     
     return (
         <div className="h-full flex flex-col xl:flex-row gap-6">
@@ -24,19 +24,19 @@ export function Dashboard({ signals, pairs, sessions }: DashboardProps) {
                         <div className="flex items-center text-gray-500 text-xs font-semibold uppercase tracking-wider mb-2">
                             <Activity className="w-4 h-4 mr-2 text-indigo-400" /> Active Signals
                         </div>
-                        <div className="text-2xl font-mono text-gray-100">{activeSignals.length}</div>
+                        <div className="text-2xl font-mono text-gray-100">{liveSignals.length}</div>
                     </div>
                     <div className="bg-[#1e222d] border border-gray-800 rounded-xl p-4">
                         <div className="flex items-center text-gray-500 text-xs font-semibold uppercase tracking-wider mb-2">
-                            <Target className="w-4 h-4 mr-2 text-emerald-400" /> Avg Win Rate
+                            <Target className="w-4 h-4 mr-2 text-emerald-400" /> Avg ITM Rate
                         </div>
-                        <div className="text-2xl font-mono text-gray-100">76.4%</div>
+                        <div className="text-2xl font-mono text-gray-100">62.8%</div>
                     </div>
                     <div className="bg-[#1e222d] border border-gray-800 rounded-xl p-4">
                         <div className="flex items-center text-gray-500 text-xs font-semibold uppercase tracking-wider mb-2">
-                            <Trophy className="w-4 h-4 mr-2 text-amber-400" /> Profit Factor
+                            <Trophy className="w-4 h-4 mr-2 text-amber-400" /> Avg Payout
                         </div>
-                        <div className="text-2xl font-mono text-gray-100">2.41</div>
+                        <div className="text-2xl font-mono text-gray-100">85%</div>
                     </div>
                     <div className="bg-[#1e222d] border border-gray-800 rounded-xl p-4">
                         <div className="flex items-center text-gray-500 text-xs font-semibold uppercase tracking-wider mb-2">
@@ -55,7 +55,7 @@ export function Dashboard({ signals, pairs, sessions }: DashboardProps) {
                         </div>
                     </div>
                     <div className="flex-1 rounded-b-lg overflow-hidden">
-                        <TradingViewChart symbol={activeSignals.length > 0 ? `FX:${activeSignals[0].pair}` : "FX:EURUSD"} />
+                        <TradingViewChart symbol={liveSignals.length > 0 ? `FX:${liveSignals[0].pair}` : "FX:EURUSD"} />
                     </div>
                 </div>
             </div>
@@ -80,22 +80,22 @@ export function Dashboard({ signals, pairs, sessions }: DashboardProps) {
                 </div>
 
                 {/* Signals Feed */}
-                <div className="bg-[#1e222d] border border-gray-800 rounded-xl p-4 flex-1 flex flex-col min-h-[500px]">
+                <div className="bg-[#1e222d] border border-gray-800 rounded-xl p-4 flex-1 flex flex-col min-h-[500px] lg:max-h-[600px]">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500 flex items-center">
-                            <TrendingUp className="w-4 h-4 mr-2" /> Top Opportunities
+                            <TrendingUp className="w-4 h-4 mr-2" /> Live Opportunities
                         </h3>
-                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-500/20 text-indigo-400">LIVE</span>
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-500/20 text-indigo-400">REALTIME</span>
                     </div>
                     
-                    <div className="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar">
-                        {activeSignals.length > 0 ? (
-                            activeSignals.map(sig => (
+                    <div className="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar pb-2">
+                        {liveSignals.length > 0 ? (
+                            liveSignals.map(sig => (
                                 <SignalCard key={sig.id} signal={sig} />
                             ))
                         ) : (
-                            <div className="h-full flex items-center justify-center text-gray-500 text-sm">
-                                No A+ setups identified
+                            <div className="h-full flex items-center justify-center text-gray-500 text-sm pb-10">
+                                Waiting for next high-quality setup...
                             </div>
                         )}
                     </div>

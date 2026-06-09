@@ -25,10 +25,10 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
     ];
 
     return (
-        <aside className="w-16 md:w-64 h-screen bg-[#1e222d] border-r border-gray-800 flex flex-col transition-all duration-300 z-20 shrink-0">
-            <div className="h-16 flex items-center justify-center md:justify-start md:px-6 border-b border-gray-800">
+        <aside className="hidden md:flex w-64 h-screen bg-[#1e222d] border-r border-gray-800 flex-col transition-all duration-300 z-20 shrink-0">
+            <div className="h-16 flex items-center px-6 border-b border-gray-800">
                 <Globe2 className="w-8 h-8 text-indigo-500 shrink-0" />
-                <span className="hidden md:block ml-3 font-bold text-lg tracking-tight text-white">ForexPro</span>
+                <span className="ml-3 font-bold text-lg tracking-tight text-white">ForexPro</span>
             </div>
 
             <nav className="flex-1 py-6 space-y-2 px-3">

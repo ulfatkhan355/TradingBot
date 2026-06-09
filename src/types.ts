@@ -16,25 +16,23 @@ export interface PairStat {
   rankingScore: number;
 }
 
-export type SignalDirection = 'BUY CALL' | 'SELL PUT';
+export type SignalDirection = 'CALL' | 'PUT';
 
 export interface TradeSignal {
   id: string;
   pair: string;
   direction: SignalDirection;
-  entryPrice: number;
-  stopLoss: number;
-  takeProfit: number;
-  riskReward: string;
+  entryPrice: number; // Expected or actual entry
   signalStrength: number; // 0-100
   confidenceScore: number; // 0-100
   qualityGrade: 'A+' | 'A' | 'B+' | 'B' | 'C';
-  expectedDuration: '1m' | '5m' | '15m' | '30m' | '1H';
-  entryTime: string; // ISO String
-  expiryTime: string; // ISO String
+  timeframe: '1m' | '5m' | '15m';
+  alertTime: string; // Time signal generated (10s before entry)
+  entryTime: string; // Target entry time (e.g. 10:05:00)
+  expiryTime: string; // Target expiry time (e.g. 10:10:00)
   factors: SignalFactor[];
-  status: 'ACTIVE' | 'WON' | 'LOST' | 'EXPIRED';
-  pnl?: number;
+  status: 'PRE_ALERT' | 'ACTIVE' | 'WON' | 'LOST' | 'TIE';
+  profitAmount?: number;
 }
 
 export interface SignalFactor {
@@ -44,23 +42,21 @@ export interface SignalFactor {
 
 export interface BacktestAnalytics {
   pair: string;
+  timeframe: string;
   totalTrades: number;
   winningTrades: number;
   losingTrades: number;
+  tieTrades: number;
   winRate: number;
-  profitFactor: number;
-  averageWin: number;
-  averageLoss: number;
+  itmRate: number; // In the money rate
+  averagePayout: number;
   maxDrawdown: number;
   recoveryFactor: number;
   sharpeRatio: number;
-  expectancy: number;
   monthlyReturns: number;
   yearlyReturns: number;
   bestSession: string;
   worstSession: string;
-  bestStrategy: string;
-  worstStrategy: string;
 }
 
 export interface MarketSession {
