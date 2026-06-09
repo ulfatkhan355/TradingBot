@@ -81,10 +81,10 @@ export function Settings({ timeframe, setTimeframe, settings, setSettings }: Set
                         <div>
                             <p className="font-semibold text-amber-400 text-sm mb-1">Live Engine Connection Status</p>
                             <p className="text-xs text-gray-400 leading-relaxed mb-3">
-                                The application connects directly to the Finnhub WebSocket API to stream real-time forex tick data. The simulation engine runs purely on the client side without relying on a backend server or mock generators.
+                                The application connects to a backend server proxy bridging to the Finnhub WebSocket API. This streams real-time forex tick data while bypassing client concurrency limits. The simulation engine runs smoothly on the client side using true live data.
                             </p>
                             <div className="bg-qx-bg p-3 rounded border border-qx-border text-xs text-gray-500 font-mono">
-                                STATUS: Direct WebSocket Streaming (Real Time)
+                                STATUS: Backend WebSocket Proxy (Live / Mock Fallback)
                             </div>
                         </div>
                     </div>

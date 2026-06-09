@@ -37,22 +37,16 @@ class ApiWebSocketManager {
     public connect() {
         if (this.isConnected || this.ws !== null) return;
         
-        console.log("WebSocketManager: Connecting to Finnhub pricing feed...");
+        console.log("WebSocketManager: Connecting to local proxy pricing feed...");
         
-        const apiKey = import.meta.env.VITE_FINNHUB_API_KEY || "d8k1351r01qjgd6qck10d8k1351r01qjgd6qck1g";
-        this.ws = new WebSocket(`wss://ws.finnhub.io?token=${apiKey}`);
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${protocol}//${window.location.host}/api/ws/market`;
+        
+        this.ws = new WebSocket(wsUrl);
 
         this.ws.onopen = () => {
-            console.log("WebSocketManager: Connected to Finnhub.");
+            console.log("WebSocketManager: Connected to local proxy.");
             this.isConnected = true;
-            
-            // Subscribe to all mapped currency pairs
-            this.pairs.forEach(p => {
-                if (p.symbol.length === 6) {
-                    const finnhubSymbol = `OANDA:${p.symbol.slice(0, 3)}_${p.symbol.slice(3, 6)}`;
-                    this.ws?.send(JSON.stringify({ type: 'subscribe', symbol: finnhubSymbol }));
-                }
-            });
         };
 
         this.ws.onmessage = (event) => {
