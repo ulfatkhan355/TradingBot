@@ -1,0 +1,6 @@
+{
+  "name": "Forex Signal Pro",
+  "description": "Institutional-grade forex trading signal generator and market scanner.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
