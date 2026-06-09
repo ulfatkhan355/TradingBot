@@ -4,6 +4,14 @@
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-qx-bg: #0d1117;
+  --color-qx-card: #161b22;
+  --color-qx-border: #30363d;
+  --color-qx-text: #e6edf3;
+  --color-qx-green: #00e676;
+  --color-qx-red: #ff5252;
+  --color-qx-blue: #4da6ff;
 }
 
 @layer utilities {

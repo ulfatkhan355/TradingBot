@@ -17,11 +17,11 @@ export function SignalHistory({ history }: SignalHistoryProps) {
     });
 
     return (
-        <div className="h-full flex flex-col bg-[#1e222d] rounded-xl border border-gray-800">
-            <div className="p-4 border-b border-gray-800 flex items-center justify-between">
+        <div className="h-full flex flex-col bg-qx-card rounded-xl border border-qx-border shadow-md">
+            <div className="p-4 border-b border-qx-border flex items-center justify-between">
                 <div>
                     <h2 className="text-xl font-bold text-gray-100 flex items-center">
-                        <History className="w-5 h-5 mr-2 text-indigo-400" /> Trading History
+                        <History className="w-5 h-5 mr-2 text-qx-blue" /> Trading History
                     </h2>
                 </div>
                 <div className="flex space-x-2">
@@ -32,8 +32,8 @@ export function SignalHistory({ history }: SignalHistoryProps) {
                             className={cn(
                                 "px-3 py-1 rounded text-xs font-semibold tracking-wider transition-colors",
                                 filter === f 
-                                ? "bg-indigo-500 text-white" 
-                                : "bg-[#131722] text-gray-400 hover:text-gray-200"
+                                ? "bg-qx-blue text-white" 
+                                : "bg-qx-bg text-gray-400 hover:text-gray-200"
                             )}
                         >
                             {f}
@@ -45,8 +45,8 @@ export function SignalHistory({ history }: SignalHistoryProps) {
             <div className="flex-1 overflow-auto custom-scrollbar">
                 {/* Desktop Table View */}
                 <table className="hidden md:table w-full text-left border-collapse">
-                    <thead className="sticky top-0 bg-[#1e222d] shadow-sm z-10">
-                        <tr className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 border-b border-gray-800">
+                    <thead className="sticky top-0 bg-qx-card shadow-sm z-10">
+                        <tr className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 border-b border-qx-border">
                             <th className="p-4">Entry Time</th>
                             <th className="p-4">Pair</th>
                             <th className="p-4">Direction</th>
@@ -63,7 +63,7 @@ export function SignalHistory({ history }: SignalHistoryProps) {
                             const won = signal.status === 'WON';
                             const tie = signal.status === 'TIE';
                             return (
-                                <tr key={signal.id} className="border-b border-gray-800/50 hover:bg-[#131722] transition-colors">
+                                <tr key={signal.id} className="border-b border-gray-800/50 hover:bg-qx-bg transition-colors">
                                     <td className="p-4 text-gray-400 text-xs">
                                         {format(new Date(signal.entryTime), 'MMM dd, HH:mm:ss')}
                                     </td>
@@ -71,7 +71,7 @@ export function SignalHistory({ history }: SignalHistoryProps) {
                                     <td className="p-4">
                                         <div className={cn(
                                             "inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold tracking-wider",
-                                            isCall ? "text-emerald-400 bg-emerald-400/10" : "text-rose-400 bg-rose-400/10"
+                                            isCall ? "text-qx-green bg-qx-green/10" : "text-qx-red bg-qx-red/10"
                                         )}>
                                             {isCall ? <ArrowUpRight className="w-3 h-3 mr-1" /> : <ArrowDownRight className="w-3 h-3 mr-1" />}
                                             {signal.direction}
@@ -82,14 +82,14 @@ export function SignalHistory({ history }: SignalHistoryProps) {
                                         {format(new Date(signal.expiryTime), 'HH:mm:ss')}
                                     </td>
                                     <td className="p-4">
-                                        <span className="text-xs font-bold text-indigo-400">{signal.qualityGrade}</span>
+                                        <span className="text-xs font-bold text-qx-blue">{signal.qualityGrade}</span>
                                         <span className="text-gray-500 text-[10px] ml-1">{signal.confidenceScore}%</span>
                                     </td>
                                     <td className="p-4 text-gray-500 text-xs">{signal.timeframe}</td>
                                     <td className="p-4 text-right">
                                         <div className={cn(
                                             "font-bold",
-                                            won ? "text-emerald-400" : tie ? "text-gray-400" : "text-rose-400"
+                                            won ? "text-qx-green" : tie ? "text-gray-400" : "text-qx-red"
                                         )}>
                                             {won ? '+' : ''}{signal.profitAmount?.toFixed(2)}
                                         </div>
@@ -109,7 +109,7 @@ export function SignalHistory({ history }: SignalHistoryProps) {
                         const won = signal.status === 'WON';
                         const tie = signal.status === 'TIE';
                         return (
-                            <div key={signal.id} className="bg-[#131722] p-4 rounded-lg border border-gray-800 font-mono">
+                            <div key={signal.id} className="bg-qx-bg p-4 rounded-lg border border-qx-border font-mono shadow-sm">
                                 <div className="flex justify-between items-start mb-3">
                                     <div>
                                         <div className="font-bold text-gray-100 text-base mb-1">{signal.pair}</div>
@@ -118,7 +118,7 @@ export function SignalHistory({ history }: SignalHistoryProps) {
                                     <div className="text-right">
                                         <div className={cn(
                                             "font-bold text-lg",
-                                            won ? "text-emerald-400" : tie ? "text-gray-400" : "text-rose-400"
+                                            won ? "text-qx-green" : tie ? "text-gray-400" : "text-qx-red"
                                         )}>
                                             {won ? '+' : ''}{signal.profitAmount?.toFixed(2)}
                                         </div>
@@ -130,7 +130,7 @@ export function SignalHistory({ history }: SignalHistoryProps) {
                                         <span className="text-gray-500 block text-xs uppercase mb-1">Direction</span>
                                         <div className={cn(
                                             "inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold tracking-wider",
-                                            isCall ? "text-emerald-400 bg-emerald-400/10" : "text-rose-400 bg-rose-400/10"
+                                            isCall ? "text-qx-green bg-qx-green/10" : "text-qx-red bg-qx-red/10"
                                         )}>
                                             {isCall ? <ArrowUpRight className="w-3 h-3 mr-1" /> : <ArrowDownRight className="w-3 h-3 mr-1" />}
                                             {signal.direction}
@@ -138,7 +138,7 @@ export function SignalHistory({ history }: SignalHistoryProps) {
                                     </div>
                                     <div>
                                         <span className="text-gray-500 block text-xs uppercase mb-1">Quality</span>
-                                        <span className="text-xs font-bold text-indigo-400">{signal.qualityGrade}</span>
+                                        <span className="text-xs font-bold text-qx-blue">{signal.qualityGrade}</span>
                                         <span className="text-gray-500 text-[10px] ml-1">{signal.confidenceScore}%</span>
                                     </div>
                                     <div>

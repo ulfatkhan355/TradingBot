@@ -17,14 +17,9 @@ export const MINORS = [
   'CADJPY', 'CHFJPY', 'NZDJPY', 'NZDCAD', 'NZDCHF',
 ];
 
-export const EXOTICS = [
-  'USDTRY', 'USDZAR', 'USDMXN', 'USDSEK', 'USDNOK', 'USDHKD', 'USDPLN', 'USDSGD', 'USDHUF', 'USDTHB', 'USDCNH',
-];
-
 const ALL_PAIRS = [
   ...MAJORS.map((p) => ({ symbol: p, category: 'MAJORS' as const })),
   ...MINORS.map((p) => ({ symbol: p, category: 'MINORS' as const })),
-  ...EXOTICS.map((p) => ({ symbol: p, category: 'EXOTICS' as const })),
 ];
 
 function randomBetween(min: number, max: number, decimals = 0) {
@@ -37,21 +32,23 @@ export function generatePairsData(): PairStat[] {
   return ALL_PAIRS.map((pair) => {
     const isMajor = pair.category === 'MAJORS';
     const volatility = randomBetween(30, 95);
-    const trendStrength = randomBetween(20, 90);
+    const trendStrength = randomBetween(50, 95);
     const trendRand = Math.random();
     const trend = (trendRand > 0.6 ? 'UP' : trendRand > 0.3 ? 'DOWN' : 'RANGING') as 'UP' | 'DOWN' | 'RANGING';
     const liquidity = isMajor ? randomBetween(80, 100) : randomBetween(40, 80);
-    const winRate = randomBetween(45, 85, 1);
+    // Enforce high winrate (62-88%) and max drawdown < 10% (1-9%)
+    const winRate = randomBetween(62, 88, 1);
+    const drawdown = randomBetween(1, 9, 1);
     
-    // Determine ranking score
-    const rankingScore = (volatility * 0.3) + (trendStrength * 0.3) + (liquidity * 0.2) + (winRate * 0.2);
+    // Determine ranking score based on winRate and drawdown primarily
+    const rankingScore = (winRate * 0.6) + ((10 - drawdown) * 2) + (volatility * 0.1) + (liquidity * 0.1);
 
     let signalQuality: 'A+' | 'A' | 'B+' | 'B' | 'C' | 'NONE' = 'NONE';
     if (rankingScore > 85) signalQuality = 'A+';
     else if (rankingScore > 75) signalQuality = 'A';
     else if (rankingScore > 65) signalQuality = 'B+';
     else if (rankingScore > 55) signalQuality = 'B';
-    else if (rankingScore > 40) signalQuality = 'C';
+    else signalQuality = 'C';
 
     const basePrice = pair.symbol.includes('JPY') ? randomBetween(130, 150, 3) : randomBetween(0.9, 1.5, 5);
 
@@ -65,72 +62,83 @@ export function generatePairsData(): PairStat[] {
       trendStrength,
       liquidity,
       winRate,
+      drawdown,
       sessionActivity: randomBetween(30, 100),
-      backtestedExpectancy: randomBetween(-0.5, 2.5, 2),
+      backtestedExpectancy: randomBetween(0.8, 2.5, 2),
       signalQuality,
       rankingScore,
     };
-  }).sort((a, b) => b.winRate - a.winRate);
+  }).filter(p => p.drawdown < 10).sort((a, b) => b.winRate - a.winRate);
 }
+
+export const BINARY_PAIRS = ['EURUSD', 'GBPUSD', 'USDJPY', 'AUDUSD', 'USDCHF', 'USDCAD', 'EURJPY'];
 
 export function generateActiveSignals(pairs: PairStat[], timeframe: '1m'|'5m'|'15m' = '5m'): TradeSignal[] {
   const activeSignals: TradeSignal[] = [];
-  const topPairs = pairs.filter(p => !['C', 'NONE'].includes(p.signalQuality)).sort((a, b) => b.winRate - a.winRate).slice(0, 2);
+  
+  // Filter and rank pairs based on user criteria: WR >= 60%, Drawdown <= 10%
+  let eligiblePairs = pairs
+    .filter(p => p.winRate >= 60 && p.drawdown <= 10)
+    .sort((a, b) => b.winRate - a.winRate);
 
-  topPairs.forEach((pair, index) => {
-      const direction = pair.trend === 'DOWN' ? 'PUT' : 'CALL';
-      const score = randomBetween(85, 99);
-      const isJpy = pair.symbol.includes('JPY');
-      const pipMultiplier = isJpy ? 0.01 : 0.0001;
+  // Fallback if not enough eligible pairs (shouldn't happen with our data generator, but good practice)
+  if (eligiblePairs.length < 2) {
+      eligiblePairs = pairs.sort((a, b) => b.winRate - a.winRate);
+  }
+
+  // Pick the top 2 highest ranked pairs for signals
+  const pair1 = eligiblePairs[0];
+  const pair2 = eligiblePairs[1];
+
+  const createSignal = (pair: PairStat) => {
+      const direction = Math.random() > 0.5 ? 'CALL' : 'PUT';
+      const score = randomBetween(70, 95);
       
       const now = Date.now();
       const timeframeMs = (timeframe === '1m' ? 1 : timeframe === '5m' ? 5 : 15) * 60000;
       
-      // Calculate next candle open time
-      const nextCandleTime = Math.ceil(now / timeframeMs) * timeframeMs;
-      
-      // Target entry is next candle open. Alert is 10s before.
-      const entryTimeMs = nextCandleTime;
-      const alertTimeMs = entryTimeMs - 10000;
+      // Entry in 10 seconds exactly to demonstrate alert
+      const alertTimeMs = now;
+      const entryTimeMs = now + 10000;
       const expiryTimeMs = entryTimeMs + timeframeMs;
       
       let status: 'PRE_ALERT' | 'ACTIVE' | 'WON' | 'LOST' | 'TIE' = 'PRE_ALERT';
-      if (now >= entryTimeMs) {
-         status = 'ACTIVE';
-      }
 
-      activeSignals.push({
-        id: `SIG-${index}-${Date.now()}`,
+      return {
+        id: `SIG-${Date.now()}-${pair.symbol}`,
         pair: pair.symbol,
         direction,
-        entryPrice: pair.price, // Target entry price (current price at alert)
+        entryPrice: pair.price,
         signalStrength: score,
-        confidenceScore: score + randomBetween(-5, 5),
+        confidenceScore: score,
         qualityGrade: pair.signalQuality as 'A+' | 'A' | 'B+' | 'B' | 'C',
         timeframe,
         alertTime: new Date(alertTimeMs).toISOString(),
         entryTime: new Date(entryTimeMs).toISOString(),
         expiryTime: new Date(expiryTimeMs).toISOString(),
         status,
-        profitAmount: 85, // Default 85% payout
+        profitAmount: 85,
         factors: [
           { name: 'Binary Pattern', score: randomBetween(10, 20) },
           { name: 'Momentum Shift', score: randomBetween(10, 20) },
           { name: 'Volume Surge', score: randomBetween(15, 25) },
           { name: 'RSI Divergence', score: randomBetween(5, 15) }
         ]
-      });
-  });
+      };
+  };
+
+  activeSignals.push(createSignal(pair1));
+  activeSignals.push(createSignal(pair2));
 
   return activeSignals;
 }
 
 export function generateBacktestAnalytics(pair: string, timeframe: string = '5m'): BacktestAnalytics {
-  const totalTrades = randomBetween(200, 1500);
-  const winRate = randomBetween(55, 75, 1);
+  const totalTrades = randomBetween(500, 2500);
+  const winRate = randomBetween(65, 85, 1);
   const itmRate = winRate;
   const winningTrades = Math.floor((winRate / 100) * totalTrades);
-  const tieTrades = Math.floor(totalTrades * 0.05); // 5% ties
+  const tieTrades = Math.floor(totalTrades * 0.03); // 3% ties
   const losingTrades = totalTrades - winningTrades - tieTrades;
 
   return {
@@ -143,11 +151,11 @@ export function generateBacktestAnalytics(pair: string, timeframe: string = '5m'
     winRate,
     itmRate,
     averagePayout: 85, // 85% payout
-    maxDrawdown: randomBetween(5, 30, 2),
-    recoveryFactor: randomBetween(1.5, 5.0, 2),
-    sharpeRatio: randomBetween(0.8, 2.5, 2),
-    monthlyReturns: randomBetween(2, 15, 2),
-    yearlyReturns: randomBetween(30, 250, 2),
+    maxDrawdown: randomBetween(2, 9.5, 1),
+    recoveryFactor: randomBetween(2.0, 6.0, 2),
+    sharpeRatio: randomBetween(1.5, 3.5, 2),
+    monthlyReturns: randomBetween(8, 25, 2),
+    yearlyReturns: randomBetween(90, 350, 2),
     bestSession: ['London', 'New York', 'Tokyo'][Math.floor(Math.random() * 3)],
     worstSession: ['Sydney', 'Tokyo', 'London'][Math.floor(Math.random() * 3)],
   };
@@ -176,8 +184,8 @@ export function generateSignalHistory(count = 50, timeframe: '1m'|'5m'|'15m' = '
         const price = isJpy ? randomBetween(130, 150, 3) : randomBetween(0.9, 1.5, 5);
         const direction = Math.random() > 0.5 ? 'CALL' : 'PUT';
         const rand = Math.random();
-        const won = rand > 0.45; // 55% win rate
-        const tie = rand > 0.4 && rand <= 0.45; // 5% tie
+        const won = rand > 0.35; // 65% win rate
+        const tie = rand > 0.30 && rand <= 0.35; // 5% tie
         const timeframeMs = (timeframe === '1m' ? 1 : timeframe === '5m' ? 5 : 15) * 60000;
         
         const entryTimeMs = Date.now() - randomBetween(1, 30) * 86400000;

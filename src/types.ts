@@ -10,6 +10,7 @@ export interface PairStat {
   trendStrength: number; // 0-100
   liquidity: number; // 0-100
   winRate: number; // percentage
+  drawdown: number; // percentage
   sessionActivity: number; // 0-100
   backtestedExpectancy: number; // expectancy value
   signalQuality: 'A+' | 'A' | 'B+' | 'B' | 'C' | 'NONE';

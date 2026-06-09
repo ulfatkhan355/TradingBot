@@ -39,11 +39,11 @@ export const SignalCard: React.FC<{ signal: TradeSignal }> = ({ signal }) => {
 
     return (
         <div className={cn(
-            "bg-[#1e222d] rounded-xl border p-4 transition-colors relative overflow-hidden font-mono text-sm leading-relaxed",
-            signal.status === 'PRE_ALERT' ? "border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.1)]" : "border-gray-800 hover:border-gray-700"
+            "bg-qx-card rounded-xl border p-4 transition-colors relative overflow-hidden font-mono text-sm leading-relaxed",
+            signal.status === 'PRE_ALERT' ? "border-qx-blue/50 shadow-[0_0_15px_rgba(77,166,255,0.1)]" : "border-qx-border hover:border-gray-700"
         )}>
             {signal.status === 'PRE_ALERT' && (
-                <div className="absolute top-0 left-0 w-full h-1 bg-amber-500 animate-[pulse_1s_ease-in-out_infinite]" />
+                <div className="absolute top-0 left-0 w-full h-1 bg-qx-blue animate-[pulse_1s_ease-in-out_infinite]" />
             )}
             
             <div className="flex flex-col space-y-1.5 text-gray-300">

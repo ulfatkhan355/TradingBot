@@ -23,7 +23,7 @@ export function BottomNav({ activeTab, setActiveTab }: BottomNavProps) {
     ];
 
     return (
-        <div className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-[#1e222d] border-t border-gray-800 z-50 flex items-center justify-around px-2 pb-safe">
+        <div className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-qx-card border-t border-qx-border z-50 flex items-center justify-around px-2 pb-safe">
             {tabs.map((tab) => {
                 const Icon = tab.icon;
                 const isActive = activeTab === tab.id;
@@ -32,12 +32,15 @@ export function BottomNav({ activeTab, setActiveTab }: BottomNavProps) {
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
                         className={cn(
-                            "flex flex-col items-center justify-center w-16 h-full transition-colors",
-                            isActive ? "text-indigo-400" : "text-gray-500 hover:text-gray-300"
+                            "flex flex-col items-center justify-center w-16 h-full transition-colors relative",
+                            isActive ? "text-qx-blue" : "text-gray-500 hover:text-gray-300"
                         )}
                     >
                         <Icon className={cn("w-5 h-5 mb-1", isActive && "scale-110 transition-transform")} />
                         <span className="text-[10px] font-medium tracking-wide">{tab.label}</span>
+                        {isActive && (
+                            <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-qx-blue rounded-b-full shadow-[0_0_8px_rgba(77,166,255,0.8)]" />
+                        )}
                     </button>
                 );
             })}

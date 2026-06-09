@@ -34,37 +34,37 @@ export function MarketScanner({ pairs }: MarketScannerProps) {
         });
 
     const getRankColor = (score: number) => {
-        if (score >= 80) return 'text-emerald-400 bg-emerald-400/10';
-        if (score >= 60) return 'text-indigo-400 bg-indigo-400/10';
+        if (score >= 80) return 'text-qx-green bg-qx-green/10';
+        if (score >= 60) return 'text-qx-blue bg-qx-blue/10';
         if (score >= 40) return 'text-amber-400 bg-amber-400/10';
-        return 'text-rose-400 bg-rose-400/10';
+        return 'text-qx-red bg-qx-red/10';
     };
 
     const getTrendIcon = (trend: string) => {
-        if (trend === 'UP') return <ArrowUp className="w-3 h-3 text-emerald-400 mr-1" />;
-        if (trend === 'DOWN') return <ArrowDown className="w-3 h-3 text-rose-400 mr-1" />;
+        if (trend === 'UP') return <ArrowUp className="w-3 h-3 text-qx-green mr-1" />;
+        if (trend === 'DOWN') return <ArrowDown className="w-3 h-3 text-qx-red mr-1" />;
         return <Minus className="w-3 h-3 text-gray-500 mr-1" />;
     };
 
     return (
-        <div className="h-full flex flex-col bg-[#1e222d] rounded-xl border border-gray-800 min-h-[500px]">
-            <div className="p-4 border-b border-gray-800 flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0">
+        <div className="h-full flex flex-col bg-qx-card rounded-xl border border-qx-border min-h-[500px]">
+            <div className="p-4 border-b border-qx-border flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0">
                 <div>
                     <h2 className="text-xl font-bold text-gray-100 flex items-center">
-                        <Activity className="w-5 h-5 mr-2 text-indigo-400" /> Market Scanner
+                        <Activity className="w-5 h-5 mr-2 text-qx-blue" /> Market Scanner
                     </h2>
                     <p className="text-sm text-gray-500 mt-1">Real-time pair ranking and structural analysis</p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3">
-                    <div className="flex bg-[#131722] p-1 rounded-lg shrink-0">
+                    <div className="flex bg-qx-bg p-1 rounded-lg shrink-0">
                         <button 
-                            className={cn("px-4 py-1.5 rounded-md text-sm font-semibold transition-colors flex-1 sm:flex-none", view === 'AI' ? "bg-indigo-500 text-white" : "text-gray-400 hover:text-gray-200")}
+                            className={cn("px-4 py-1.5 rounded-md text-sm font-semibold transition-colors flex-1 sm:flex-none", view === 'AI' ? "bg-qx-blue text-white" : "text-gray-400 hover:text-gray-200")}
                             onClick={() => setView('AI')}
                         >
                             AI Scanner
                         </button>
                         <button 
-                            className={cn("px-4 py-1.5 rounded-md text-sm font-semibold transition-colors flex-1 sm:flex-none", view === 'LIVE' ? "bg-emerald-600 text-white" : "text-gray-400 hover:text-gray-200")}
+                            className={cn("px-4 py-1.5 rounded-md text-sm font-semibold transition-colors flex-1 sm:flex-none", view === 'LIVE' ? "bg-green-600 text-white" : "text-gray-400 hover:text-gray-200")}
                             onClick={() => setView('LIVE')}
                         >
                             Live Rates
@@ -74,13 +74,42 @@ export function MarketScanner({ pairs }: MarketScannerProps) {
                         <input 
                             type="text"
                             placeholder="Filter pairs..."
-                            className="bg-[#131722] border border-gray-800 rounded-lg px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-indigo-500 w-full sm:w-48"
+                            className="bg-qx-bg border border-qx-border rounded-lg px-4 py-2 text-sm text-gray-200 focus:outline-none focus:border-qx-blue w-full sm:w-48"
                             value={filter}
                             onChange={e => setFilter(e.target.value)}
                         />
                     )}
                 </div>
             </div>
+
+            {view === 'AI' && (
+                <div className="grid grid-cols-2 lg:grid-cols-6 gap-3 p-4 border-b border-qx-border shrink-0 bg-qx-bg">
+                    <div className="bg-qx-card rounded-md p-3 border border-qx-border">
+                        <p className="text-[10px] uppercase text-gray-500 font-semibold mb-1">Global Trend</p>
+                        <div className="flex items-center"><ArrowUp className="w-3 h-3 text-qx-green mr-1" /><span className="text-sm font-mono text-qx-green font-bold">BULLISH</span></div>
+                    </div>
+                    <div className="bg-qx-card rounded-md p-3 border border-qx-border">
+                        <p className="text-[10px] uppercase text-gray-500 font-semibold mb-1">Avg RSI</p>
+                        <p className="text-sm font-mono text-gray-200 font-bold">58.4 <span className="text-gray-500 font-sans text-xs font-normal">Neutral</span></p>
+                    </div>
+                    <div className="bg-qx-card rounded-md p-3 border border-qx-border">
+                        <p className="text-[10px] uppercase text-gray-500 font-semibold mb-1">Volatility Focus</p>
+                        <p className="text-sm font-mono text-qx-red font-bold">HIGH</p>
+                    </div>
+                    <div className="bg-qx-card rounded-md p-3 border border-qx-border">
+                        <p className="text-[10px] uppercase text-gray-500 font-semibold mb-1">Volume Proxy</p>
+                        <p className="text-sm font-mono text-gray-200 font-bold">2.4M/tick</p>
+                    </div>
+                    <div className="bg-qx-card rounded-md p-3 border border-qx-border">
+                        <p className="text-[10px] uppercase text-gray-500 font-semibold mb-1">Session Bias</p>
+                        <p className="text-sm font-mono text-qx-blue font-bold">LONDON OPEN</p>
+                    </div>
+                    <div className="bg-qx-card rounded-md p-3 border border-qx-border">
+                        <p className="text-[10px] uppercase text-gray-500 font-semibold mb-1">Market State</p>
+                        <p className="text-sm font-mono text-qx-green font-bold text-center bg-qx-green/10 rounded-sm py-0.5">OPTIMAL</p>
+                    </div>
+                </div>
+            )}
 
             <div className="flex-1 overflow-auto custom-scrollbar relative">
                 {view === 'LIVE' ? (
@@ -91,12 +120,12 @@ export function MarketScanner({ pairs }: MarketScannerProps) {
                 <>
                 {/* Desktop Table View */}
                 <table className="hidden md:table w-full text-left border-collapse min-w-[800px]">
-                    <thead className="sticky top-0 bg-[#1e222d] shadow-sm z-10">
-                        <tr className="text-xs font-semibold uppercase tracking-wider text-gray-500 border-b border-gray-800">
+                    <thead className="sticky top-0 bg-qx-card shadow-sm z-10">
+                        <tr className="text-xs font-semibold uppercase tracking-wider text-gray-500 border-b border-qx-border">
                             <th className="p-4 cursor-pointer hover:text-gray-300" onClick={() => handleSort('symbol')}>Pair</th>
                             <th className="p-4 cursor-pointer hover:text-gray-300" onClick={() => handleSort('category')}>Category</th>
-                            <th className="p-4 cursor-pointer hover:text-gray-300" onClick={() => handleSort('price')}>Price</th>
-                            <th className="p-4 cursor-pointer hover:text-gray-300" onClick={() => handleSort('spread')}>Spread (Pips)</th>
+                            <th className="p-4 cursor-pointer hover:text-gray-300 text-center" onClick={() => handleSort('winRate')}>Win Rate</th>
+                            <th className="p-4 cursor-pointer hover:text-gray-300 text-center" onClick={() => handleSort('drawdown')}>Drawdown</th>
                             <th className="p-4 cursor-pointer hover:text-gray-300" onClick={() => handleSort('volatility')}>Volatility</th>
                             <th className="p-4 cursor-pointer hover:text-gray-300" onClick={() => handleSort('trend')}>Trend</th>
                             <th className="p-4 cursor-pointer hover:text-gray-300" onClick={() => handleSort('signalQuality')}>Quality</th>
@@ -105,31 +134,31 @@ export function MarketScanner({ pairs }: MarketScannerProps) {
                     </thead>
                     <tbody className="text-sm font-mono align-middle">
                         {displayPairs.map((pair, i) => (
-                            <tr key={pair.symbol} className="border-b border-gray-800/50 hover:bg-[#131722] transition-colors">
+                            <tr key={pair.symbol} className="border-b border-qx-border/50 hover:bg-qx-bg transition-colors">
                                 <td className="p-4 font-bold text-gray-200">{pair.symbol}</td>
                                 <td className="p-4 text-gray-500 text-xs">{pair.category}</td>
-                                <td className="p-4 text-gray-300">{pair.price.toFixed(5)}</td>
-                                <td className="p-4 text-gray-400">{pair.spread.toFixed(1)}</td>
+                                <td className="p-4 text-center text-qx-green font-bold">{pair.winRate.toFixed(1)}%</td>
+                                <td className="p-4 text-center text-qx-red">{pair.drawdown.toFixed(1)}%</td>
                                 <td className="p-4">
-                                    <div className="w-24 h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                                    <div className="w-16 lg:w-24 h-1.5 bg-gray-800 rounded-full overflow-hidden">
                                         <div 
-                                            className="h-full bg-indigo-500 rounded-full"
+                                            className="h-full bg-qx-blue rounded-full"
                                             style={{ width: `${pair.volatility}%` }}
                                         />
                                     </div>
                                     <span className="text-[10px] text-gray-500 mt-1 block">{pair.volatility.toFixed(0)}</span>
                                 </td>
-                                <td className="p-4 flex items-center">
+                                <td className="p-4 flex items-center mt-2">
                                     {getTrendIcon(pair.trend)}
                                     <span className={cn(
                                         "text-xs",
-                                        pair.trend === 'UP' ? 'text-emerald-400' : pair.trend === 'DOWN' ? 'text-rose-400' : 'text-gray-400'
+                                        pair.trend === 'UP' ? 'text-qx-green' : pair.trend === 'DOWN' ? 'text-qx-red' : 'text-gray-400'
                                     )}>{pair.trend}</span>
                                 </td>
                                 <td className="p-4">
                                     <span className={cn(
                                         "px-2 py-0.5 rounded text-xs font-bold",
-                                        pair.signalQuality.includes('A') ? 'bg-indigo-500/20 text-indigo-400' : 
+                                        pair.signalQuality.includes('A') ? 'bg-qx-blue/20 text-qx-blue' : 
                                         pair.signalQuality.includes('B') ? 'bg-amber-500/20 text-amber-400' : 
                                         'bg-gray-800 text-gray-500'
                                     )}>
@@ -148,7 +177,7 @@ export function MarketScanner({ pairs }: MarketScannerProps) {
                 {/* Mobile Cards View */}
                 <div className="md:hidden flex flex-col gap-4 p-4">
                     {displayPairs.map((pair) => (
-                        <div key={pair.symbol} className="bg-[#131722] p-4 rounded-lg border border-gray-800 font-mono">
+                        <div key={pair.symbol} className="bg-qx-bg p-4 rounded-lg border border-qx-border font-mono shadow-md">
                             <div className="flex justify-between items-center mb-3">
                                 <div>
                                     <div className="font-bold text-gray-100 text-base">{pair.symbol}</div>
@@ -159,20 +188,20 @@ export function MarketScanner({ pairs }: MarketScannerProps) {
                                 </span>
                             </div>
                             <div className="grid grid-cols-2 gap-3 text-sm text-gray-400 mb-4">
-                                <div><span className="text-gray-500 block text-xs uppercase mb-1">Price</span> {pair.price.toFixed(5)}</div>
-                                <div><span className="text-gray-500 block text-xs uppercase mb-1">Spread</span> {pair.spread.toFixed(1)}</div>
+                                <div><span className="text-gray-500 block text-xs uppercase mb-1">Win Rate</span> <span className="text-qx-green font-bold">{pair.winRate.toFixed(1)}%</span></div>
+                                <div><span className="text-gray-500 block text-xs uppercase mb-1">Drawdown</span> <span className="text-qx-red font-bold">{pair.drawdown.toFixed(1)}%</span></div>
                                 <div>
                                     <span className="text-gray-500 block text-xs uppercase mb-1">Trend</span>
                                     <div className="flex items-center">
                                         {getTrendIcon(pair.trend)}
-                                        <span className={cn("text-xs", pair.trend === 'UP' ? 'text-emerald-400' : pair.trend === 'DOWN' ? 'text-rose-400' : 'text-gray-400')}>{pair.trend}</span>
+                                        <span className={cn("text-xs", pair.trend === 'UP' ? 'text-qx-green' : pair.trend === 'DOWN' ? 'text-qx-red' : 'text-gray-400')}>{pair.trend}</span>
                                     </div>
                                 </div>
                                 <div>
                                     <span className="text-gray-500 block text-xs uppercase mb-1">Quality</span>
                                     <span className={cn(
                                         "px-1.5 py-0.5 rounded text-[10px] font-bold",
-                                        pair.signalQuality.includes('A') ? 'bg-indigo-500/20 text-indigo-400' : 
+                                        pair.signalQuality.includes('A') ? 'bg-qx-blue/20 text-qx-blue' : 
                                         pair.signalQuality.includes('B') ? 'bg-amber-500/20 text-amber-400' : 
                                         'bg-gray-800 text-gray-500'
                                     )}>
@@ -185,9 +214,9 @@ export function MarketScanner({ pairs }: MarketScannerProps) {
                                     <span className="uppercase text-[10px]">Volatility</span>
                                     <span>{pair.volatility.toFixed(0)}</span>
                                 </div>
-                                <div className="w-full h-1.5 bg-[#1e222d] rounded-full overflow-hidden">
+                                <div className="w-full h-1.5 bg-qx-card rounded-full overflow-hidden">
                                     <div 
-                                        className="h-full bg-indigo-500 rounded-full"
+                                        className="h-full bg-qx-blue rounded-full"
                                         style={{ width: `${pair.volatility}%` }}
                                     />
                                 </div>
